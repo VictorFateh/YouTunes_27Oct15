@@ -1,37 +1,19 @@
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Stop;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.application.Platform;
 import javafx.beans.*;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.Menu;
 
 /**
  * I want a border pane with a hBox in the top cell and a observable list in the center cell.
@@ -63,11 +45,16 @@ public class MediaPlayerController extends Application
 
         Scene scene = new Scene(border, WIDTH, HEIGHT);
         
+        final Menu menu1 = new Menu("File");
+        final Menu menu2 = new Menu("Options");
+        final Menu menu3 = new Menu("Help");
+        //create the menubar
         MenuBar menuBar = new MenuBar();
-        menuBar.prefWidthProperty().bind(stage.widthProperty());
+        
+        menuBar.getMenus().addAll(menu1);
         
         //File menu - import new, delete, exit
-        Menu menuFile = new Menu("File");
+        //build File menu list items
         MenuItem importMenuItem = new MenuItem("Import media");
         MenuItem deleteMenuItem = new MenuItem("Delete media");
         MenuItem exitMenuItem = new MenuItem("Exit");
@@ -76,9 +63,10 @@ public class MediaPlayerController extends Application
                 System.exit(0);
             }
         });
-        
-        menuFile.getItems().addAll(importMenuItem, deleteMenuItem, new SeparatorMenuItem(), 
-            exitMenuItem);
+        //populate the file menu observable list
+        menu1.getItems().add(importMenuItem);
+        menu1.getItems().add(deleteMenuItem);
+        menu1.getItems().add(exitMenuItem);
         border.setTop(menuBar);
 
         stage.setScene(scene);
