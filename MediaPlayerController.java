@@ -44,54 +44,7 @@ public class MediaPlayerController extends Application
         BorderPane border = new BorderPane();
         //add a menuBar to the top for menu functionality
         MenuBar menuBar = addMenuBar(stage);
-        /*
-        //adds the "File" drop down menu
-        final Menu menu1 = new Menu("File");
-        //fileChooser
-        final FileChooser fileChooser = new FileChooser();
-
-        //create the menubar
-        MenuBar menuBar = new MenuBar();
-        //add the 'File' drop down menu to the menubar
-        menuBar.getMenus().addAll(menu1);
-
-        //File drop down menu - import new, delete, exit
-        //build File menu list items
-        MenuItem importMenuItem = new MenuItem("Import media");
-        //Brings up the JFileChooser so that music can be selected for import
-        importMenuItem.setOnAction(new EventHandler<ActionEvent>()
-        {
-        public void handle(ActionEvent t)
-        { 
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open Music File");
-        //only look for audio formats
-        fileChooser.getExtensionFilters().addAll(
-        new ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"));
-
-        File selectedFile = fileChooser.showOpenDialog(stage);
-        if (selectedFile != null) 
-        {
-        //stage.display(selectedFile);
-        }
-        }
-        });
-
-        MenuItem deleteMenuItem = new MenuItem("Delete media");
-
-        //exit menu item.  adds event handler to exit and close the media player
-        MenuItem exitMenuItem = new MenuItem("Exit");
-        exitMenuItem.setOnAction(new EventHandler<ActionEvent>() {
-        public void handle(ActionEvent t){
-        System.exit(0);
-        }
-        });
-        //populate the file menu observable list
-        menu1.getItems().add(importMenuItem);
-        menu1.getItems().add(deleteMenuItem);
-        menu1.getItems().add(exitMenuItem);
-         */
-
+        //assign the menuBar to the top Pane of the border layout
         border.setTop(menuBar);
         //add a horizontal box to the center border pane for buttons
         HBox hbox = addHBox();
