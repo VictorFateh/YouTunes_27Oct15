@@ -1,4 +1,4 @@
-
+import java.util.Optional;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -18,6 +18,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import java.io.File;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.control.Alert.AlertType;
 
 /**
  * This is the controller for the rest of the program.  The UI is drawn here and the 
@@ -56,8 +59,13 @@ public class MediaPlayerController extends Application
         border.setBottom(lvList);
         //instantiate the JFRAME
         Scene scene = new Scene(border, WIDTH, HEIGHT);
+        //Set the caspian stylesheet
+        Application.setUserAgentStylesheet(STYLESHEET_CASPIAN);
         //populate the scene
         stage.setScene(scene);
+
+        //prevent the window from being resized
+        stage.setResizable(false);
         //display the name in the top border
         stage.setTitle("YouTunes Media Player");
         //draw the scene on the display
@@ -90,10 +98,7 @@ public class MediaPlayerController extends Application
                     FileChooser fileChooser = new FileChooser();
                     fileChooser.setTitle("Open Resource File");
                     fileChooser.getExtensionFilters().addAll(
-                        new ExtensionFilter("Text Files", "*.txt"),
-                        new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
-                        new ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"),
-                        new ExtensionFilter("All Files", "*.*"));
+                        new ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"));
                     File selectedFile = fileChooser.showOpenDialog(stage);
                     if (selectedFile != null) 
                     {
@@ -101,8 +106,6 @@ public class MediaPlayerController extends Application
                     }
                 }
             });
-
-        MenuItem deleteMenuItem = new MenuItem("Delete media");
 
         //exit menu item.  adds event handler to exit and close the media player
         MenuItem exitMenuItem = new MenuItem("Exit");
@@ -113,7 +116,6 @@ public class MediaPlayerController extends Application
             });
         //populate the file menu observable list
         menu1.getItems().add(importMenuItem);
-        menu1.getItems().add(deleteMenuItem);
         menu1.getItems().add(exitMenuItem);
         //returns the menuBar as a complete and populated object
         return menuBar;
@@ -129,8 +131,9 @@ public class MediaPlayerController extends Application
         final int PAD_HEIGHT = 12;
         final int SPACING = 10;
         //button dimensions
-        final int BUTTON_WIDTH = 75;
+        final int BUTTON_WIDTH = 50;
         final int BUTTON_HEIGHT = 20;
+        final int CURRENT_BUTTON_HEIGHT = 30;
         //volume slider widths
         final int PREF_VSLIDER_WIDTH = 70;
         final int MIN_VSLIDER_WIDTH = 30;
@@ -148,7 +151,7 @@ public class MediaPlayerController extends Application
         buttonBack.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         //play button
         Button buttonCurrent = new Button("Play");
-        buttonCurrent.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+        buttonCurrent.setPrefSize(BUTTON_WIDTH, CURRENT_BUTTON_HEIGHT);
         //next button
         Button buttonNext = new Button("Next");
         buttonNext.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
@@ -164,8 +167,8 @@ public class MediaPlayerController extends Application
         timeSlider.valueProperty().addListener(new InvalidationListener() {
                 public void invalidated(Observable ov) {
                     if (timeSlider.isValueChanging()) {
-                        // multiply duration by percentage calculated by slider position
-                        // mp.seek(duration.multiply(timeSlider.getValue() / 100.0));
+                        //multiply duration by percentage calculated by slider position
+                        //mp.seek(duration.multiply(timeSlider.getValue() / 100.0));
                     }
                 }
             });
@@ -200,6 +203,62 @@ public class MediaPlayerController extends Application
         lvList.setMaxHeight(Control.USE_PREF_SIZE);
         lvList.setPrefWidth(PREF_WIDTH);
 
+        //define a context menu
+        ContextMenu contextMenu = addContextMenu(lvList);
         return lvList;
+    }
+    
+    /**
+     * Create a context menu for the library viewing area
+     */
+    private ContextMenu addContextMenu(ListView<String> lvList)
+    {
+        final ContextMenu rowMenu = new ContextMenu();
+        //create menu items for context menu
+        MenuItem removeItem = new MenuItem("Remove Media");
+        MenuItem exitItem = new MenuItem("Exit");
+        //Event Handler for 'Remove Item'
+        removeItem.setOnAction(new EventHandler<ActionEvent>(){
+                //create a modal confirmation dialog box
+                @Override
+                public void handle(ActionEvent t) { 
+                    String titleTxt = "Remove Media";
+                    Alert alert = new Alert(AlertType.CONFIRMATION);
+                    alert.setTitle(titleTxt);
+                    String s = "Confirm to remove track from library!";
+                    alert.setContentText(s);
+                    Optional<ButtonType> result = alert.showAndWait();
+                    //if ok is pressed, remove media 
+                    if ((result.isPresent()) && (result.get() == ButtonType.OK)) {
+                        //remove track from library
+                    }
+
+                }
+            });
+
+        //Event Handler for 'Exit'
+        exitItem.setOnAction(new EventHandler<ActionEvent>(){
+
+                @Override
+                public void handle(ActionEvent t) {
+                    System.exit(0);
+                }
+            });   
+
+        //add menu items to context menu
+        rowMenu.getItems().add(removeItem);
+        rowMenu.getItems().add(exitItem);
+        //make context menu visible in the library view window
+        lvList.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>()
+            {
+                @Override public void handle(MouseEvent e)
+                {
+                    if (e.getButton() == MouseButton.SECONDARY)
+                    {
+                        rowMenu.show(lvList, e.getScreenX(), e.getScreenY());
+                    }
+                }
+            });
+        return rowMenu;
     }
 }
