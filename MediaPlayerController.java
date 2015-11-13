@@ -21,6 +21,8 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.*;
 
 /**
  * This is the controller for the rest of the program.  The UI is drawn here and the 
@@ -102,7 +104,15 @@ public class MediaPlayerController extends Application
                     File selectedFile = fileChooser.showOpenDialog(stage);
                     if (selectedFile != null) 
                     {
-                        //openFile(selectedFile);
+                        //find the path and convert to a useful String
+                        String path = selectedFile.getAbsolutePath();//would be worth
+                        path = path.replace("\\", "/");
+                        //passs the path into a Media object that we can use
+                        Media media = new Media(new File(path).toURI().toString());
+                        //instantiate new mediaPlayer, pass in the Media object we just created
+                        MediaPlayer mediaPlayer = new MediaPlayer(media);
+                        //make the media play automatically
+                        mediaPlayer.setAutoPlay(true);
                     }
                 }
             });
@@ -187,6 +197,8 @@ public class MediaPlayerController extends Application
         return hbox;
     }
 
+    
+    
     /**
      * Create the library viewing region
      */

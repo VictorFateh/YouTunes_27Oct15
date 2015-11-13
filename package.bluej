@@ -1,10 +1,10 @@
 #BlueJ package file
 objectbench.height=76
-objectbench.width=662
+objectbench.width=666
 package.editor.height=400
 package.editor.width=564
-package.editor.x=351
-package.editor.y=102
+package.editor.x=87
+package.editor.y=43
 package.numDependencies=0
 package.numTargets=1
 package.showExtends=true
@@ -13,7 +13,7 @@ project.charset=UTF-8
 target1.editor.height=717
 target1.editor.width=833
 target1.editor.x=209
-target1.editor.y=281
+target1.editor.y=183
 target1.height=50
 target1.name=MediaPlayerController
 target1.naviview.expanded=true
