@@ -8,12 +8,9 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.control.Alert.AlertType;
 import java.util.Optional;
 import java.util.ArrayList;
-import javafx.scene.media.MediaPlayer;
-import javafx.scene.media.*;
-import java.util.*;
-import java.io.File;
 
 //todo: add tableview support for the viewing window
+
 
 /**
  * Creates a Library that contains the paths for media
@@ -22,32 +19,21 @@ public class Library
 {
     //Library items;
     ObservableList<String> items;
+    ArrayList<String> pathList;
+    ArrayList<String> trackNames;
     ListView<String> lvList;
-    List<MediaPlayer> players = new ArrayList<>();
-
-    /**
-     * default Library constructor
-     */
-    public Library()
-    {
-        //empty
-    }
 
     /**
      * Constructor for objects of class Library
      */
-    public Library(String path)
+    public Library()
     {
-        final File dir = new File(path);
         items = FXCollections.observableArrayList ();
-        //make an arraylist of mediaplayers
-        for (String file : dir.list())
-        {
-            Song newSong = new Song();
-            players.add(newSong.createMediaPlayer(path));
-        }
-    }//constructor
-
+        pathList = new ArrayList<String>();
+        trackNames = new ArrayList<String>();
+    }//method
+    
+    
     /**
      * return the size of the item List
      */
@@ -55,7 +41,8 @@ public class Library
     {
         return items.size();
     }//method
-
+        
+    
     /**
      * Create the library viewing region
      */
@@ -66,7 +53,7 @@ public class Library
         lvList = new ListView<String>();
         //The empty strings exist to make the list view appear on startup
         ObservableList<String> items = FXCollections.observableArrayList ("");
-
+        
         lvList.setItems(items);
         lvList.setMaxHeight(Control.USE_PREF_SIZE);
         lvList.setPrefWidth(PREF_WIDTH);
