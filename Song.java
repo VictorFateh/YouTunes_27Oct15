@@ -34,12 +34,36 @@ public class Song
                     }
                 });
 
-            mediaPlayer.play();
+            //mediaPlayer.play();
 
         } catch (RuntimeException re) {
             // Handle construction errors
             System.out.println("Caught Exception: " + re.getMessage());
         }
+    }
+    
+    public MediaPlayer createMediaPlayer(String path)
+    {
+        try {
+            media = new Media(new File(path).toURI().toString());
+
+            mediaPlayer = new MediaPlayer(media);
+            mediaPlayer.setOnError(new Runnable() {
+                    @Override
+                    public void run() {
+                        final String errorMessage = media.getError().getMessage();
+                        // Handle errors during playback
+                        System.out.println("MediaPlayer Error: " + errorMessage);
+                    }
+                });
+
+            //mediaPlayer.play();
+
+        } catch (RuntimeException re) {
+            // Handle construction errors
+            System.out.println("Caught Exception: " + re.getMessage());
+        }
+        return mediaPlayer;
     }
     
 }

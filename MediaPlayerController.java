@@ -26,6 +26,7 @@ import javafx.scene.media.*;
 import javafx.event.EventType;
 import javafx.event.*;
 import java.lang.*;
+import javafx.stage.DirectoryChooser;
 
 /**
  * This is the controller for the rest of the program.  The UI is drawn here and the 
@@ -48,6 +49,7 @@ public class MediaPlayerController extends Application
         final int WIDTH = 800;
         final int HEIGHT = 450;
 
+        
         //Use a border pane as the root for scene
         BorderPane border = new BorderPane();
         //create a library to view in the library viewing window
@@ -92,17 +94,17 @@ public class MediaPlayerController extends Application
         //adds the "File" drop down menu
         final Menu menu1 = new Menu("File");
         //fileChooser
-        final FileChooser fileChooser = new FileChooser();
+        //final FileChooser fileChooser = new FileChooser();
 
         //create the menubar
         MenuBar menuBar = new MenuBar();
         //add the 'File' drop down menu to the menubar
         menuBar.getMenus().addAll(menu1);
 
-        //File drop down menu - import new, delete, exit
+        //File drop down menu - import file, import folder, exit
         //build File menu list items
-        MenuItem importMenuItem = new MenuItem("Import media");
-        importMenuItem.setOnAction(new EventHandler<ActionEvent>()
+        MenuItem importFileItem = new MenuItem("Import file");
+        importFileItem.setOnAction(new EventHandler<ActionEvent>()
             {
 
                 public void handle(ActionEvent t)
@@ -114,7 +116,6 @@ public class MediaPlayerController extends Application
                     File selectedFile = fileChooser.showOpenDialog(stage);
                     if (selectedFile != null) 
                     {
-                        int zero = 0;
                         //find the path and convert to a useful String
                         String path = selectedFile.getAbsolutePath();
                         path = path.replace("\\", "/");
@@ -122,13 +123,48 @@ public class MediaPlayerController extends Application
                         Song newSong = new Song();
                         newSong.createMedia(path);
 
+
                         //repaint the library view
                         int lvListSize = library.obListLength();
                         //refresh the listview 
-                        lvList.fireEvent(new ListView.EditEvent<>(lvList, ListView.editCommitEvent(), selectedFile.getName(), lvListSize));                           
+                        lvList.fireEvent(new ListView.EditEvent<>(lvList, ListView.editCommitEvent(), selectedFile.getName(), lvListSize));      
+                        
+                        
                     }
                 }
             });//eventhandler
+
+        
+        //build Folder menu list items
+        //MenuItem importFolderItem = new MenuItem("Import folder");
+        /*importFolderItem.setOnAction(new EventHandler<ActionEvent>()
+            {
+
+                public void handle(ActionEvent t)
+                { 
+                    DirectoryChooser chooser = new DirectoryChooser();
+                    chooser.setTitle("Open Resource Folder");
+                    //chooser.getExtensionFilters().addAll(
+                        //new ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"));
+                    File defaultDirectory = new File("user.dir");
+                    File selectedDirectory = chooser.showDialog(stage);
+                    if (selectedDirectory != null) 
+                    {
+                        //find the path and convert to a useful String
+                        String path = selectedDirectory.getAbsolutePath();
+                        path = path.replace("\\", "/");
+
+                        Library newLibrary = new Library(path);
+
+
+                        //repaint the library view
+                        //int lvListSize = library.obListLength();
+                        //refresh the listview 
+                        //might just have to open with dialog at beginning of the setup
+                        //lvList.fireEvent(new ListView.EditEvent<>(lvList, ListView.editCommitEvent(), selectedFile.getName(), lvListSize));                           
+                    }
+                }
+            });//eventhandler*/
 
         //exit menu item.  adds event handler to exit and close the media player
         MenuItem exitMenuItem = new MenuItem("Exit");
@@ -138,7 +174,8 @@ public class MediaPlayerController extends Application
                 }
             });//eventhandler
         //populate the file menu observable list
-        menu1.getItems().add(importMenuItem);
+        menu1.getItems().add(importFileItem);
+        //menu1.getItems().add(importFolderItem);
         menu1.getItems().add(exitMenuItem);
         //returns the menuBar as a complete and populated object
         return menuBar;
