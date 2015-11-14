@@ -25,6 +25,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.*;
 import javafx.event.EventType;
 import javafx.event.*;
+import java.lang.*;
 
 /**
  * This is the controller for the rest of the program.  The UI is drawn here and the 
@@ -81,8 +82,10 @@ public class MediaPlayerController extends Application
     }//method
 
     /**
-     * Create MenuBar item and populate the menu
-     */
+    * Create MenuBar item and populate the menu
+    */
+    //supress the warning about the generics for the lvList refresh call
+    @SuppressWarnings("unchecked") 
     private MenuBar addMenuBar(Stage stage, Library library, ListView lvList)
     {
 
@@ -122,18 +125,7 @@ public class MediaPlayerController extends Application
                         //repaint the library view
                         int lvListSize = library.obListLength();
                         //refresh the listview 
-                        //raises a warning flag that my system isn't displaying well, random try catch block //fix
-                        try 
-                        {
-                            if(lvListSize <= 0)
-                            {
-                                lvList.fireEvent(new ListView.EditEvent<>(lvList, ListView.editCommitEvent(), selectedFile.getName(), lvListSize));
-                            }
-                        }
-                        catch(RuntimeException re){
-                            // Handle construction errors
-                            System.out.println("Caught Exception: " + re.getMessage());
-                        }
+                        lvList.fireEvent(new ListView.EditEvent<>(lvList, ListView.editCommitEvent(), selectedFile.getName(), lvListSize));                           
                     }
                 }
             });//eventhandler
@@ -151,8 +143,6 @@ public class MediaPlayerController extends Application
         //returns the menuBar as a complete and populated object
         return menuBar;
     }//method
-
-    
 
     /**
      * Creates an HBox (horizontal box) with buttons for the center region

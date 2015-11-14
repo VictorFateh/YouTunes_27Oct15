@@ -19,8 +19,6 @@ public class Library
 {
     //Library items;
     ObservableList<String> items;
-    ArrayList<String> pathList;
-    ArrayList<String> trackNames;
     ListView<String> lvList;
 
     /**
@@ -29,8 +27,6 @@ public class Library
     public Library()
     {
         items = FXCollections.observableArrayList ();
-        pathList = new ArrayList<String>();
-        trackNames = new ArrayList<String>();
     }//method
     
     
