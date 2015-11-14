@@ -23,6 +23,8 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.*;
+import javafx.event.EventType;
+import javafx.event.*;
 
 /**
  * This is the controller for the rest of the program.  The UI is drawn here and the 
@@ -47,16 +49,20 @@ public class MediaPlayerController extends Application
 
         //Use a border pane as the root for scene
         BorderPane border = new BorderPane();
+        //create a library to view in the library viewing window
+        Library library = new Library();
+
+        //add a ListView object for the library viewing area in bottom pane
+        ListView lvList = library.addLibraryView();
         //add a menuBar to the top for menu functionality
-        MenuBar menuBar = addMenuBar(stage);
+        MenuBar menuBar = addMenuBar(stage, library, lvList);
         //assign the menuBar to the top Pane of the border layout
         border.setTop(menuBar);
         //add a horizontal box to the center border pane for buttons
         HBox hbox = addHBox();
         //media controls are in the hBox
         border.setCenter(hbox);
-        //add a ListView object for the library viewing area in bottom pane
-        ListView lvList = addLibraryView();
+
         //library is viewed in the lvList
         border.setBottom(lvList);
         //instantiate the JFRAME
@@ -72,12 +78,12 @@ public class MediaPlayerController extends Application
         stage.setTitle("YouTunes Media Player");
         //draw the scene on the display
         stage.show();
-    }
+    }//method
 
     /**
      * Create MenuBar item and populate the menu
      */
-    private MenuBar addMenuBar(Stage stage)
+    private MenuBar addMenuBar(Stage stage, Library library, ListView lvList)
     {
 
         //adds the "File" drop down menu
@@ -95,6 +101,7 @@ public class MediaPlayerController extends Application
         MenuItem importMenuItem = new MenuItem("Import media");
         importMenuItem.setOnAction(new EventHandler<ActionEvent>()
             {
+
                 public void handle(ActionEvent t)
                 { 
                     FileChooser fileChooser = new FileChooser();
@@ -104,18 +111,32 @@ public class MediaPlayerController extends Application
                     File selectedFile = fileChooser.showOpenDialog(stage);
                     if (selectedFile != null) 
                     {
+                        int zero = 0;
                         //find the path and convert to a useful String
-                        String path = selectedFile.getAbsolutePath();//would be worth
+                        String path = selectedFile.getAbsolutePath();
                         path = path.replace("\\", "/");
-                        //passs the path into a Media object that we can use
-                        Media media = new Media(new File(path).toURI().toString());
-                        //instantiate new mediaPlayer, pass in the Media object we just created
-                        MediaPlayer mediaPlayer = new MediaPlayer(media);
-                        //make the media play automatically
-                        mediaPlayer.setAutoPlay(true);
+
+                        Song newSong = new Song();
+                        newSong.createMedia(path);
+
+                        //repaint the library view
+                        int lvListSize = library.obListLength();
+                        //refresh the listview 
+                        //raises a warning flag that my system isn't displaying well, random try catch block //fix
+                        try 
+                        {
+                            if(lvListSize <= 0)
+                            {
+                                lvList.fireEvent(new ListView.EditEvent<>(lvList, ListView.editCommitEvent(), selectedFile.getName(), lvListSize));
+                            }
+                        }
+                        catch(RuntimeException re){
+                            // Handle construction errors
+                            System.out.println("Caught Exception: " + re.getMessage());
+                        }
                     }
                 }
-            });
+            });//eventhandler
 
         //exit menu item.  adds event handler to exit and close the media player
         MenuItem exitMenuItem = new MenuItem("Exit");
@@ -123,13 +144,15 @@ public class MediaPlayerController extends Application
                 public void handle(ActionEvent t){
                     System.exit(0);
                 }
-            });
+            });//eventhandler
         //populate the file menu observable list
         menu1.getItems().add(importMenuItem);
         menu1.getItems().add(exitMenuItem);
         //returns the menuBar as a complete and populated object
         return menuBar;
-    }
+    }//method
+
+    
 
     /**
      * Creates an HBox (horizontal box) with buttons for the center region
@@ -181,7 +204,7 @@ public class MediaPlayerController extends Application
                         //mp.seek(duration.multiply(timeSlider.getValue() / 100.0));
                     }
                 }
-            });
+            });//listener
 
         // Add the volume label
         Label volumeLabel = new Label("Vol: ");
@@ -195,82 +218,5 @@ public class MediaPlayerController extends Application
             timeSlider, volumeLabel, volumeSlider);
 
         return hbox;
-    }
-
-    
-    
-    /**
-     * Create the library viewing region
-     */
-    private ListView addLibraryView()
-    {
-        final double PREF_WIDTH = 800;
-
-        ListView<String> lvList = new ListView<String>();
-        //Currently hard coded strings for mockup purposes
-        ObservableList<String> items = FXCollections.observableArrayList (
-                "Goes Like This", "For This", "Skit",
-                "Ya Mean", "Chicken salad");
-        lvList.setItems(items);
-        lvList.setMaxHeight(Control.USE_PREF_SIZE);
-        lvList.setPrefWidth(PREF_WIDTH);
-
-        //define a context menu
-        ContextMenu contextMenu = addContextMenu(lvList);
-        return lvList;
-    }
-    
-    /**
-     * Create a context menu for the library viewing area
-     */
-    private ContextMenu addContextMenu(ListView<String> lvList)
-    {
-        final ContextMenu rowMenu = new ContextMenu();
-        //create menu items for context menu
-        MenuItem removeItem = new MenuItem("Remove Media");
-        MenuItem exitItem = new MenuItem("Exit");
-        //Event Handler for 'Remove Item'
-        removeItem.setOnAction(new EventHandler<ActionEvent>(){
-                //create a modal confirmation dialog box
-                @Override
-                public void handle(ActionEvent t) { 
-                    String titleTxt = "Remove Media";
-                    Alert alert = new Alert(AlertType.CONFIRMATION);
-                    alert.setTitle(titleTxt);
-                    String s = "Confirm to remove track from library!";
-                    alert.setContentText(s);
-                    Optional<ButtonType> result = alert.showAndWait();
-                    //if ok is pressed, remove media 
-                    if ((result.isPresent()) && (result.get() == ButtonType.OK)) {
-                        //remove track from library
-                    }
-
-                }
-            });
-
-        //Event Handler for 'Exit'
-        exitItem.setOnAction(new EventHandler<ActionEvent>(){
-
-                @Override
-                public void handle(ActionEvent t) {
-                    System.exit(0);
-                }
-            });   
-
-        //add menu items to context menu
-        rowMenu.getItems().add(removeItem);
-        rowMenu.getItems().add(exitItem);
-        //make context menu visible in the library view window
-        lvList.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>()
-            {
-                @Override public void handle(MouseEvent e)
-                {
-                    if (e.getButton() == MouseButton.SECONDARY)
-                    {
-                        rowMenu.show(lvList, e.getScreenX(), e.getScreenY());
-                    }
-                }
-            });
-        return rowMenu;
-    }
-}
+    }//method
+}//class
