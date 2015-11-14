@@ -6,3 +6,5 @@ Library.class
 Library.ctxt
 *.class
 Song$2.class
+*.ctxt
+*.class
