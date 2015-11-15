@@ -40,7 +40,7 @@ public class MediaPlayerUI extends Application
         //assign the menuBar to the top Pane of the border layout
         border.setTop(menuBar);
         //add a horizontal box to the center border pane for buttons
-        MediaControls mediaControls = new MediaControls();
+        MediaControls mediaControls = new MediaControls(library);
                 
         //media controls are in the hBox
         border.setCenter(mediaControls.addHBox());
@@ -48,14 +48,16 @@ public class MediaPlayerUI extends Application
         //library is viewed in the lvList
         border.setBottom(lvList);
         //instantiate the JFRAME
-        Scene scene = new Scene(border, WIDTH, HEIGHT);
+        //Scene scene = new Scene(border, WIDTH, HEIGHT);
+        Scene scene = new Scene(border);//, WIDTH, HEIGHT);
+        
         //Set the caspian stylesheet
         Application.setUserAgentStylesheet(STYLESHEET_CASPIAN);
         //populate the scene
         stage.setScene(scene);
 
         //prevent the window from being resized
-        stage.setResizable(false);
+        //stage.setResizable(false);
         //display the name in the top border
         stage.setTitle("YouTunes Media Player");
         //draw the scene on the display

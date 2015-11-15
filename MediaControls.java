@@ -2,6 +2,11 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.beans.*;
+import javafx.event.*;
+import java.util.List;
+import javafx.scene.media.*;
+import javafx.util.Duration;
+import javafx.scene.media.MediaPlayer.Status;
 
 /**
  * Write a description of class mediaControls here.
@@ -11,6 +16,23 @@ import javafx.beans.*;
  */
 public class MediaControls
 {
+    Library trackList;
+    private MediaPlayer mp;
+    private MediaView mediaView;
+    private final boolean repeat = false;
+    private boolean stopRequested = false;
+    private boolean atEndOfMedia = false;
+    private Duration duration;
+    private List<MediaPlayer> playList;
+    private int playListLength;
+    
+    //passing in the library because we need to be able to act on an object
+    public MediaControls(Library library)
+    {
+        trackList = library;
+        playList = library.getMediaPlayers();
+        playListLength = playList.size();
+    }
 
     /**
      * Creates an HBox (horizontal box) with buttons for the center region
@@ -22,7 +44,7 @@ public class MediaControls
         final int PAD_HEIGHT = 12;
         final int SPACING = 10;
         //hbox background color
-        final String HBOX_BACKGROUND_COLOR = "-fx-background-color: #bfc2c7;";
+        final String HBOX_BACKGROUND_COLOR = "-fx-background-color: #bfc2c7;";//grey
 
         HBox hbox = new HBox();
         hbox.setPadding(new Insets(PAD_WIDTH, PAD_HEIGHT, PAD_WIDTH, PAD_HEIGHT));
@@ -53,10 +75,35 @@ public class MediaControls
     {
 
         Button playButton = new Button("Play");
-        
-        // play each audio file in turn.
-        //playLibrary();
 
+        // play an audio file
+        playButton.setOnAction(new EventHandler<ActionEvent>() {
+                public void handle(ActionEvent e) {
+
+                    playList.get(0).play();
+                    
+                    Status status = playList.get(0).getStatus();
+                    if (status == Status.UNKNOWN || status == Status.HALTED) {
+                        // don't do anything in these states
+                        return;
+                    }
+
+                    if (status == Status.PAUSED
+                    || status == Status.READY
+                    || status == Status.STOPPED) {
+                        // rewind the movie if we're sitting at the end
+                        if (atEndOfMedia) {
+                            mp.seek(mp.getStartTime());
+                            atEndOfMedia = false;
+                        }
+                        playList.get(0).play();
+                        playButton.setText("Pause");
+                    } else {
+                        playList.get(0).pause();
+                        playButton.setText("Play");
+                    }
+                }
+            });
         return playButton;
     }//method
 
@@ -68,17 +115,17 @@ public class MediaControls
 
         // allow the user to skip a track.
         /*nextButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override public void handle(ActionEvent actionEvent) {
-                    final MediaPlayer curPlayer = mediaView.getMediaPlayer();
-                    curPlayer.currentTimeProperty().removeListener(progressChangeListener);
-                    curPlayer.getMedia().getMetadata().removeListener(metadataChangeListener);
-                    curPlayer.stop();
+        @Override public void handle(ActionEvent actionEvent) {
+        final MediaPlayer curPlayer = mediaView.getMediaPlayer();
+        curPlayer.currentTimeProperty().removeListener(progressChangeListener);
+        curPlayer.getMedia().getMetadata().removeListener(metadataChangeListener);
+        curPlayer.stop();
 
-                    MediaPlayer nextPlayer = players.get((players.indexOf(curPlayer) + 1) % players.size());
-                    mediaView.setMediaPlayer(nextPlayer);
-                    nextPlayer.play();
-                }
-            });*/
+        MediaPlayer nextPlayer = players.get((players.indexOf(curPlayer) + 1) % players.size());
+        mediaView.setMediaPlayer(nextPlayer);
+        nextPlayer.play();
+        }
+        });*/
         return nextButton;
     }//method
 
