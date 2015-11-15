@@ -1,30 +1,7 @@
-import java.util.Optional;
-import javafx.application.Application;
 import javafx.geometry.Insets;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.stage.Stage;
 import javafx.beans.*;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.Menu;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-import java.io.File;
-import javafx.stage.FileChooser.ExtensionFilter;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.MouseButton;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.media.MediaPlayer;
-import javafx.scene.media.*;
-import javafx.event.EventType;
-import javafx.event.*;
 
 /**
  * Write a description of class mediaControls here.
@@ -34,8 +11,7 @@ import javafx.event.*;
  */
 public class MediaControls
 {
-    
-    
+
     /**
      * Creates an HBox (horizontal box) with buttons for the center region
      */
@@ -45,15 +21,6 @@ public class MediaControls
         final int PAD_WIDTH = 15;
         final int PAD_HEIGHT = 12;
         final int SPACING = 10;
-        //button dimensions
-        final int BUTTON_WIDTH = 50;
-        final int BUTTON_HEIGHT = 20;
-        final int CURRENT_BUTTON_HEIGHT = 30;
-        //volume slider widths
-        final int PREF_VSLIDER_WIDTH = 70;
-        final int MIN_VSLIDER_WIDTH = 30;
-        //time slider width
-        final int MIN_TSLIDER_WIDTH = 50;
         //hbox background color
         final String HBOX_BACKGROUND_COLOR = "-fx-background-color: #bfc2c7;";
 
@@ -61,18 +28,66 @@ public class MediaControls
         hbox.setPadding(new Insets(PAD_WIDTH, PAD_HEIGHT, PAD_WIDTH, PAD_HEIGHT));
         hbox.setSpacing(10);   // Gap between nodes
         hbox.setStyle(HBOX_BACKGROUND_COLOR);//sets the hbox to grey
-        //back button
-        Button buttonBack = new Button("Back");
-        buttonBack.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
-        //play button
-        Button buttonCurrent = new Button("Play");
-        buttonCurrent.setPrefSize(BUTTON_WIDTH, CURRENT_BUTTON_HEIGHT);
-        //next button
-        Button buttonNext = new Button("Next");
-        buttonNext.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
         // Add Time label
         Label timeLabel = new Label("Time: ");
+
+        // Add the volume label
+        Label volumeLabel = new Label("Vol: ");
+
+        hbox.getChildren().addAll(backButton(), playButton(), nextButton(), timeLabel,
+            timeSlider(), volumeLabel, volumeSlider());
+
+        return hbox;
+    }//method
+
+    //create back button
+    private Button backButton()
+    {
+        Button backButton = new Button("Back");
+        return backButton;
+    }//method
+
+    //create play button
+    private Button playButton()
+    {
+
+        Button playButton = new Button("Play");
+        
+        // play each audio file in turn.
+        //playLibrary();
+
+        return playButton;
+    }//method
+
+    //create next button
+    private Button nextButton()
+    {
+
+        Button nextButton = new Button("next");
+
+        // allow the user to skip a track.
+        /*nextButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override public void handle(ActionEvent actionEvent) {
+                    final MediaPlayer curPlayer = mediaView.getMediaPlayer();
+                    curPlayer.currentTimeProperty().removeListener(progressChangeListener);
+                    curPlayer.getMedia().getMetadata().removeListener(metadataChangeListener);
+                    curPlayer.stop();
+
+                    MediaPlayer nextPlayer = players.get((players.indexOf(curPlayer) + 1) % players.size());
+                    mediaView.setMediaPlayer(nextPlayer);
+                    nextPlayer.play();
+                }
+            });*/
+        return nextButton;
+    }//method
+
+    //make a time slider to show progress of the song
+    private Slider timeSlider()
+    {
+
+        //time slider width
+        final int MIN_TSLIDER_WIDTH = 50;
 
         // Add time slider
         Slider timeSlider = new Slider();
@@ -88,19 +103,22 @@ public class MediaControls
                 }
             });//listener
 
-        // Add the volume label
-        Label volumeLabel = new Label("Vol: ");
-        // Add Volume slider
+        return timeSlider;
+    }//method
+
+    //make a volume bar
+    private Slider volumeSlider()
+    {
+        //volume slider widths
+        final int PREF_VSLIDER_WIDTH = 70;
+        final int MIN_VSLIDER_WIDTH = 30;
+
         Slider volumeSlider = new Slider();
         volumeSlider.setPrefWidth(PREF_VSLIDER_WIDTH);
         volumeSlider.setMaxWidth(Region.USE_PREF_SIZE);
         volumeSlider.setMinWidth(MIN_VSLIDER_WIDTH);
 
-        hbox.getChildren().addAll(buttonBack, buttonCurrent, buttonNext, timeLabel,
-            timeSlider, volumeLabel, volumeSlider);
-
-        return hbox;
+        return volumeSlider;
     }//method
 
-    
 }
