@@ -25,7 +25,8 @@ public class MediaControls
     private Duration duration;
     private List<MediaPlayer> playList;
     private int playListLength;
-    
+    private int currentTrack = 0;
+
     //passing in the library because we need to be able to act on an object
     public MediaControls(Library library)
     {
@@ -67,6 +68,27 @@ public class MediaControls
     private Button backButton()
     {
         Button backButton = new Button("Back");
+
+        // allow the user to go back a track.
+        backButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override public void handle(ActionEvent actionEvent) {
+                    //final MediaPlayer curPlayer = mediaView.getMediaPlayer();
+                    //curPlayer.currentTimeProperty().removeListener(progressChangeListener);
+                    //curPlayer.getMedia().getMetadata().removeListener(metadataChangeListener);
+                    playList.get(currentTrack).stop();
+                    //go back one track in the playlist, go to end if at beginning of playlist
+                    if (currentTrack == 0)
+                    {
+                        currentTrack = (playListLength - 1);
+                    }
+                    else
+                    {
+                        currentTrack -= 1;
+                    }
+                    playList.get(currentTrack).play();
+                }
+            });
+
         return backButton;
     }//method
 
@@ -80,9 +102,7 @@ public class MediaControls
         playButton.setOnAction(new EventHandler<ActionEvent>() {
                 public void handle(ActionEvent e) {
 
-                    playList.get(0).play();
-                    
-                    Status status = playList.get(0).getStatus();
+                    Status status = playList.get(currentTrack).getStatus();
                     if (status == Status.UNKNOWN || status == Status.HALTED) {
                         // don't do anything in these states
                         return;
@@ -96,10 +116,10 @@ public class MediaControls
                             mp.seek(mp.getStartTime());
                             atEndOfMedia = false;
                         }
-                        playList.get(0).play();
+                        playList.get(currentTrack).play();
                         playButton.setText("Pause");
                     } else {
-                        playList.get(0).pause();
+                        playList.get(currentTrack).pause();
                         playButton.setText("Play");
                     }
                 }
@@ -114,18 +134,24 @@ public class MediaControls
         Button nextButton = new Button("next");
 
         // allow the user to skip a track.
-        /*nextButton.setOnAction(new EventHandler<ActionEvent>() {
-        @Override public void handle(ActionEvent actionEvent) {
-        final MediaPlayer curPlayer = mediaView.getMediaPlayer();
-        curPlayer.currentTimeProperty().removeListener(progressChangeListener);
-        curPlayer.getMedia().getMetadata().removeListener(metadataChangeListener);
-        curPlayer.stop();
-
-        MediaPlayer nextPlayer = players.get((players.indexOf(curPlayer) + 1) % players.size());
-        mediaView.setMediaPlayer(nextPlayer);
-        nextPlayer.play();
-        }
-        });*/
+        nextButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override public void handle(ActionEvent actionEvent) {
+                    //final MediaPlayer curPlayer = mediaView.getMediaPlayer();
+                    //curPlayer.currentTimeProperty().removeListener(progressChangeListener);
+                    //curPlayer.getMedia().getMetadata().removeListener(metadataChangeListener);
+                    playList.get(currentTrack).stop();
+                    //advance one track in the playlist, go to beginning if at end of playlist
+                    if (currentTrack == (playListLength - 1))
+                    {
+                        currentTrack = 0;
+                    }
+                    else
+                    {
+                        currentTrack += 1;
+                    }
+                    playList.get(currentTrack).play();
+                }
+            });
         return nextButton;
     }//method
 
@@ -145,7 +171,7 @@ public class MediaControls
                 public void invalidated(Observable ov) {
                     if (timeSlider.isValueChanging()) {
                         //multiply duration by percentage calculated by slider position
-                        //mp.seek(duration.multiply(timeSlider.getValue() / 100.0));
+                        mp.seek(duration.multiply(timeSlider.getValue() / 100.0));
                     }
                 }
             });//listener
