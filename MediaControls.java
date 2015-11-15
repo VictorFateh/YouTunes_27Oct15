@@ -171,7 +171,7 @@ public class MediaControls
                 public void invalidated(Observable ov) {
                     if (timeSlider.isValueChanging()) {
                         //multiply duration by percentage calculated by slider position
-                        mp.seek(duration.multiply(timeSlider.getValue() / 100.0));
+                        playList.get(currentTrack).seek(duration.multiply(timeSlider.getValue() / 100.0));
                     }
                 }
             });//listener
@@ -190,6 +190,14 @@ public class MediaControls
         volumeSlider.setPrefWidth(PREF_VSLIDER_WIDTH);
         volumeSlider.setMaxWidth(Region.USE_PREF_SIZE);
         volumeSlider.setMinWidth(MIN_VSLIDER_WIDTH);
+
+        volumeSlider.valueProperty().addListener(new InvalidationListener() {
+                public void invalidated(Observable ov) {
+                    if (volumeSlider.isValueChanging()) {
+                        playList.get(currentTrack).setVolume(volumeSlider.getValue() / 100.0);
+                    }
+                }
+            });
 
         return volumeSlider;
     }//method
