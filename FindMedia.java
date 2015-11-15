@@ -6,7 +6,6 @@ import java.io.File;
  */
 public class FindMedia
 {
-    @SuppressWarnings("unchecked")
     public String findMediaPath(Stage stage)
     {
         DirectoryChooser chooser = new DirectoryChooser();

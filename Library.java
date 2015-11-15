@@ -6,7 +6,7 @@ import javafx.beans.value.*;
 import javafx.collections.*;
 import javafx.scene.control.*;
 import javafx.scene.media.*;
-import javafx.util.Duration;
+//import javafx.util.Duration;
 
 //todo: add tableview support for the viewing window
 /**
@@ -21,17 +21,12 @@ public class Library
     public static final String TAG_COLUMN_NAME = "Tag";
     public static final String VALUE_COLUMN_NAME = "Value";
 
-    private ChangeListener<Duration> progressChangeListener;
-    private MapChangeListener<String, Object> metadataChangeListener;
 
     //Library items;
     ArrayList<String> trackNames = new ArrayList<String>();
     ListView<String> lvList;
     MediaView mediaView = new MediaView();
     List<MediaPlayer> players;
-    final Label currentlyPlaying = new Label();
-    final ProgressBar progress = new ProgressBar();
-    final TableView<Map> metadataTable = new TableView<>();
 
     /** Constructor for objects of class Library*/
 
@@ -72,25 +67,12 @@ public class Library
             System.out.println("No audio found in " + dir);
             Platform.exit();
             return;
-        }    
-
-        // play each audio file in turn.
-        /*for (int i = 0; i < players.size(); i++) {
-        final MediaPlayer player     = players.get(i);
-        final MediaPlayer nextPlayer = players.get((i + 1) % players.size());
-        player.setOnEndOfMedia(new Runnable() {
-        @Override public void run() {
-        player.currentTimeProperty().removeListener(progressChangeListener);
-        player.getMedia().getMetadata().removeListener(metadataChangeListener);
-        player.stop();
-        mediaView.setMediaPlayer(nextPlayer);
-        nextPlayer.play();
-        }
-        });
-        }*/
-
+        } 
     }//constructor(String)
 
+    //currently not used.  i think right now at the end of the songs play just stops
+    //kept in here for an idea of what could be done
+    //
     public void playLibrary()
     {
         for (int i = 0; i < players.size(); i++) {
@@ -98,8 +80,8 @@ public class Library
             final MediaPlayer nextPlayer = players.get((i + 1) % players.size());
             player.setOnEndOfMedia(new Runnable() {
                     @Override public void run() {
-                        player.currentTimeProperty().removeListener(progressChangeListener);
-                        player.getMedia().getMetadata().removeListener(metadataChangeListener);
+                        //player.currentTimeProperty().removeListener(progressChangeListener);
+                        //player.getMedia().getMetadata().removeListener(metadataChangeListener);
                         player.stop();
                         mediaView.setMediaPlayer(nextPlayer);
                         nextPlayer.play();
@@ -125,52 +107,7 @@ public class Library
         return player;
     }//method
 
-    /** sets the currently playing label to the label of the new media player and updates the progress monitor. */
-    private void setCurrentlyPlaying(final MediaPlayer newPlayer) {
-        newPlayer.seek(Duration.ZERO);
-
-        progress.setProgress(0);
-        progressChangeListener = new ChangeListener<Duration>() {
-            @Override public void changed(ObservableValue<? extends Duration> observableValue, Duration oldValue, Duration newValue) {
-                progress.setProgress(1.0 * newPlayer.getCurrentTime().toMillis() / newPlayer.getTotalDuration().toMillis());
-            }
-        };
-        newPlayer.currentTimeProperty().addListener(progressChangeListener);
-
-        String source = newPlayer.getMedia().getSource();
-        source = source.substring(0, source.length() - FILE_EXTENSION_LEN);
-        source = source.substring(source.lastIndexOf("/") + 1).replaceAll("%20", " ");
-        currentlyPlaying.setText("Now Playing: " + source);
-
-        setMetaDataDisplay(newPlayer.getMedia().getMetadata());
-    }//method
-
-    private void setMetaDataDisplay(ObservableMap<String, Object> metadata) {
-        metadataTable.getItems().setAll(convertMetadataToTableData(metadata));
-        metadataChangeListener = new MapChangeListener<String, Object>() {
-            @Override
-            public void onChanged(Change<? extends String, ?> change) {
-                metadataTable.getItems().setAll(convertMetadataToTableData(metadata));
-            }
-        };
-        metadata.addListener(metadataChangeListener);
-    }//method
-
-    private ObservableList<Map> convertMetadataToTableData(ObservableMap<String, Object> metadata) {
-        ObservableList<Map> allData = FXCollections.observableArrayList();
-
-        for (String key: metadata.keySet()) {
-            Map<String, Object> dataRow = new HashMap<>();
-
-            dataRow.put(TAG_COLUMN_NAME,   key);
-            dataRow.put(VALUE_COLUMN_NAME, metadata.get(key));
-
-            allData.add(dataRow);
-        }//method
-
-        return allData;
-    }
-
+    //returns the track names for entry into the library viewing window
     public ArrayList<String> getTracksArray()
     {
         return trackNames;

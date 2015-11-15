@@ -48,16 +48,13 @@ public class MediaPlayerUI extends Application
         //library is viewed in the lvList
         border.setBottom(lvList);
         //instantiate the JFRAME
-        //Scene scene = new Scene(border, WIDTH, HEIGHT);
-        Scene scene = new Scene(border);//, WIDTH, HEIGHT);
+        Scene scene = new Scene(border);
         
         //Set the caspian stylesheet
         Application.setUserAgentStylesheet(STYLESHEET_CASPIAN);
         //populate the scene
         stage.setScene(scene);
 
-        //prevent the window from being resized
-        //stage.setResizable(false);
         //display the name in the top border
         stage.setTitle("YouTunes Media Player");
         //draw the scene on the display

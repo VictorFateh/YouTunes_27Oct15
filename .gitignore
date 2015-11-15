@@ -15,3 +15,5 @@ Library$1.class
 *.class
 Library.class
 *.ctxt
+*.ctxt
+package.bluej

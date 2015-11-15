@@ -2,11 +2,12 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.beans.*;
-import javafx.event.*;
+import javafx.event.*; 
 import java.util.List;
 import javafx.scene.media.*;
 import javafx.util.Duration;
 import javafx.scene.media.MediaPlayer.Status;
+import javafx.application.Platform;
 
 /**
  * Write a description of class mediaControls here.
@@ -17,7 +18,6 @@ import javafx.scene.media.MediaPlayer.Status;
 public class MediaControls
 {
     Library trackList;
-    private MediaPlayer mp;
     private MediaView mediaView;
     private final boolean repeat = false;
     private boolean stopRequested = false;
@@ -26,6 +26,9 @@ public class MediaControls
     private List<MediaPlayer> playList;
     private int playListLength;
     private int currentTrack = 0;
+    private Label playTime;
+    Slider timeSlider = new Slider();
+    Slider volumeSlider = new Slider();
 
     //passing in the library because we need to be able to act on an object
     public MediaControls(Library library)
@@ -59,7 +62,7 @@ public class MediaControls
         Label volumeLabel = new Label("Vol: ");
 
         hbox.getChildren().addAll(backButton(), playButton(), nextButton(), timeLabel,
-            timeSlider(), volumeLabel, volumeSlider());
+            timeSlider(), playTime(), volumeLabel, volumeSlider());
 
         return hbox;
     }//method
@@ -72,9 +75,6 @@ public class MediaControls
         // allow the user to go back a track.
         backButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override public void handle(ActionEvent actionEvent) {
-                    //final MediaPlayer curPlayer = mediaView.getMediaPlayer();
-                    //curPlayer.currentTimeProperty().removeListener(progressChangeListener);
-                    //curPlayer.getMedia().getMetadata().removeListener(metadataChangeListener);
                     playList.get(currentTrack).stop();
                     //go back one track in the playlist, go to end if at beginning of playlist
                     if (currentTrack == 0)
@@ -99,6 +99,7 @@ public class MediaControls
         Button playButton = new Button("Play");
 
         // play an audio file
+        playList.get(currentTrack).play();
         playButton.setOnAction(new EventHandler<ActionEvent>() {
                 public void handle(ActionEvent e) {
 
@@ -113,7 +114,7 @@ public class MediaControls
                     || status == Status.STOPPED) {
                         // rewind the movie if we're sitting at the end
                         if (atEndOfMedia) {
-                            mp.seek(mp.getStartTime());
+                            playList.get(currentTrack).seek(playList.get(currentTrack).getStartTime());
                             atEndOfMedia = false;
                         }
                         playList.get(currentTrack).play();
@@ -124,6 +125,49 @@ public class MediaControls
                     }
                 }
             });
+
+        playList.get(currentTrack).currentTimeProperty().addListener(new InvalidationListener() {
+                public void invalidated(Observable ov) {
+                    updateValues();
+                }
+            });
+
+        playList.get(currentTrack).setOnPlaying(new Runnable() {
+                public void run() {
+                    if (stopRequested) {
+                        playList.get(currentTrack).pause();
+                        stopRequested = false;
+                    } else {
+                        playButton.setText("Pause");
+                    }
+                }
+            });
+
+        playList.get(currentTrack).setOnPaused(new Runnable() {
+                public void run() {
+                    System.out.println("onPaused");
+                    playButton.setText("Play");
+                }
+            });
+
+        playList.get(currentTrack).setOnReady(new Runnable() {
+                public void run() {
+                    duration = playList.get(currentTrack).getMedia().getDuration();
+                    updateValues();
+                }
+            });
+
+        playList.get(currentTrack).setCycleCount(repeat ? MediaPlayer.INDEFINITE : 1);
+        playList.get(currentTrack).setOnEndOfMedia(new Runnable() {
+                public void run() {
+                    if (!repeat) {
+                        playButton.setText(">");
+                        stopRequested = true;
+                        atEndOfMedia = true;
+                    }
+                }
+            });
+
         return playButton;
     }//method
 
@@ -136,9 +180,6 @@ public class MediaControls
         // allow the user to skip a track.
         nextButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override public void handle(ActionEvent actionEvent) {
-                    //final MediaPlayer curPlayer = mediaView.getMediaPlayer();
-                    //curPlayer.currentTimeProperty().removeListener(progressChangeListener);
-                    //curPlayer.getMedia().getMetadata().removeListener(metadataChangeListener);
                     playList.get(currentTrack).stop();
                     //advance one track in the playlist, go to beginning if at end of playlist
                     if (currentTrack == (playListLength - 1))
@@ -149,7 +190,8 @@ public class MediaControls
                     {
                         currentTrack += 1;
                     }
-                    playList.get(currentTrack).play();
+                    //playList.get(currentTrack).play();
+                    playButton();
                 }
             });
         return nextButton;
@@ -158,12 +200,9 @@ public class MediaControls
     //make a time slider to show progress of the song
     private Slider timeSlider()
     {
-
         //time slider width
         final int MIN_TSLIDER_WIDTH = 50;
 
-        // Add time slider
-        Slider timeSlider = new Slider();
         HBox.setHgrow(timeSlider, Priority.ALWAYS);
         timeSlider.setMinWidth(MIN_TSLIDER_WIDTH);
         timeSlider.setMaxWidth(Double.MAX_VALUE);
@@ -179,6 +218,79 @@ public class MediaControls
         return timeSlider;
     }//method
 
+    @SuppressWarnings("deprecation")//divide(duration) was deprecated because of a bug in jdk
+    protected void updateValues() {
+        if (playTime != null && timeSlider != null && volumeSlider != null) {
+            Platform.runLater(new Runnable() {
+                    public void run() {
+                        Duration currentTime = playList.get(currentTrack).getCurrentTime();
+                        playTime.setText(formatTime(currentTime, duration));
+                        timeSlider.setDisable(duration.isUnknown());
+                        if (!timeSlider.isDisabled()
+                        && duration.greaterThan(Duration.ZERO)
+                        && !timeSlider.isValueChanging()) {
+                            timeSlider.setValue(currentTime.divide(duration).toMillis()
+                                * 100.0);
+                        }
+                        if (!volumeSlider.isValueChanging()) {
+                            volumeSlider.setValue((int) Math.round(playList.get(currentTrack).getVolume()
+                                    * 100));
+                        }
+                    }
+                });
+        }
+    }
+
+    private static String formatTime(Duration elapsed, Duration duration) {
+        int intElapsed = (int) Math.floor(elapsed.toSeconds());
+        int elapsedHours = intElapsed / (60 * 60);
+        if (elapsedHours > 0) {
+            intElapsed -= elapsedHours * 60 * 60;
+        }
+        int elapsedMinutes = intElapsed / 60;
+        int elapsedSeconds = intElapsed - elapsedHours * 60 * 60
+            - elapsedMinutes * 60;
+
+        if (duration.greaterThan(Duration.ZERO)) {
+            int intDuration = (int) Math.floor(duration.toSeconds());
+            int durationHours = intDuration / (60 * 60);
+            if (durationHours > 0) {
+                intDuration -= durationHours * 60 * 60;
+            }
+            int durationMinutes = intDuration / 60;
+            int durationSeconds = intDuration - durationHours * 60 * 60
+                - durationMinutes * 60;
+            if (durationHours > 0) {
+                return String.format("%d:%02d:%02d/%d:%02d:%02d",
+                    elapsedHours, elapsedMinutes, elapsedSeconds,
+                    durationHours, durationMinutes, durationSeconds);
+            } else {
+                return String.format("%02d:%02d/%02d:%02d",
+                    elapsedMinutes, elapsedSeconds, durationMinutes,
+                    durationSeconds);
+            }
+        } else {
+            if (elapsedHours > 0) {
+                return String.format("%d:%02d:%02d", elapsedHours,
+                    elapsedMinutes, elapsedSeconds);
+            } else {
+                return String.format("%02d:%02d", elapsedMinutes,
+                    elapsedSeconds);
+            }
+        }
+    }
+
+    // Add Play label
+    private Label playTime()
+    {
+
+        playTime = new Label();
+        playTime.setPrefWidth(130);
+        playTime.setMinWidth(50);
+
+        return playTime;
+    }
+
     //make a volume bar
     private Slider volumeSlider()
     {
@@ -186,7 +298,6 @@ public class MediaControls
         final int PREF_VSLIDER_WIDTH = 70;
         final int MIN_VSLIDER_WIDTH = 30;
 
-        Slider volumeSlider = new Slider();
         volumeSlider.setPrefWidth(PREF_VSLIDER_WIDTH);
         volumeSlider.setMaxWidth(Region.USE_PREF_SIZE);
         volumeSlider.setMinWidth(MIN_VSLIDER_WIDTH);
