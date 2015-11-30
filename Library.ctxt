@@ -1,0 +1,23 @@
+#BlueJ class context
+comment0.params=path
+comment0.target=Library(java.lang.String)
+comment0.text=Constructor\ for\ objects\ of\ class\ Library
+comment1.params=dir\ name
+comment1.target=boolean\ accept(java.io.File,\ java.lang.String)
+comment2.params=
+comment2.target=void\ playLibrary()
+comment3.params=
+comment3.target=void\ run()
+comment4.params=
+comment4.target=java.util.List\ getMediaPlayers()
+comment5.params=mediaSource
+comment5.target=javafx.scene.media.MediaPlayer\ createPlayer(java.lang.String)
+comment5.text=@return\ a\ MediaPlayer\ for\ the\ given\ source\ which\ will\ report\ any\ errors\ it\ encounters
+comment6.params=
+comment6.target=void\ run()
+comment7.params=
+comment7.target=java.util.ArrayList\ getTracksArray()
+comment8.params=
+comment8.target=javafx.scene.control.ListView\ addLibraryView()
+comment8.text=\r\n\ Create\ the\ library\ viewing\ region\r\n
+numComments=9
