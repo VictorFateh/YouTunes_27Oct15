@@ -61,7 +61,7 @@ public class MediaControls
         // Add the volume label
         Label volumeLabel = new Label("Vol: ");
 
-        hbox.getChildren().addAll(backButton(), playButton(), nextButton(), timeLabel,
+        hbox.getChildren().addAll(backButton(), playButton(), pauseButton(), nextButton(), timeLabel,
             timeSlider(), playTime(), volumeLabel, volumeSlider());
 
         return hbox;
@@ -102,51 +102,14 @@ public class MediaControls
         playList.get(currentTrack).play();
         playButton.setOnAction(new EventHandler<ActionEvent>() {
                 public void handle(ActionEvent e) {
-
-                    Status status = playList.get(currentTrack).getStatus();
-                    if (status == Status.UNKNOWN || status == Status.HALTED) {
-                        // don't do anything in these states
-                        return;
-                    }
-
-                    if (status == Status.PAUSED
-                    || status == Status.READY
-                    || status == Status.STOPPED) {
-                        // rewind the movie if we're sitting at the end
-                        if (atEndOfMedia) {
-                            playList.get(currentTrack).seek(playList.get(currentTrack).getStartTime());
-                            atEndOfMedia = false;
-                        }
-                        playList.get(currentTrack).play();
-                        playButton.setText("Pause");
-                    } else {
-                        playList.get(currentTrack).pause();
-                        playButton.setText("Play");
-                    }
+                    playList.get(currentTrack).play();
                 }
             });
-
+        
+        //helper methods to provide data for volume and time sliders    
         playList.get(currentTrack).currentTimeProperty().addListener(new InvalidationListener() {
                 public void invalidated(Observable ov) {
                     updateValues();
-                }
-            });
-
-        playList.get(currentTrack).setOnPlaying(new Runnable() {
-                public void run() {
-                    if (stopRequested) {
-                        playList.get(currentTrack).pause();
-                        stopRequested = false;
-                    } else {
-                        playButton.setText("Pause");
-                    }
-                }
-            });
-
-        playList.get(currentTrack).setOnPaused(new Runnable() {
-                public void run() {
-                    System.out.println("onPaused");
-                    playButton.setText("Play");
                 }
             });
 
@@ -157,25 +120,29 @@ public class MediaControls
                 }
             });
 
-        playList.get(currentTrack).setCycleCount(repeat ? MediaPlayer.INDEFINITE : 1);
-        playList.get(currentTrack).setOnEndOfMedia(new Runnable() {
-                public void run() {
-                    if (!repeat) {
-                        playButton.setText(">");
-                        stopRequested = true;
-                        atEndOfMedia = true;
-                    }
-                }
-            });
-
         return playButton;
     }//method
 
+    //create pause button
+    private Button pauseButton()
+    {
+
+        Button pauseButton = new Button("Pause");
+
+        // allow the user to pause a track.
+        pauseButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override public void handle(ActionEvent actionEvent) {
+                    playList.get(currentTrack).pause();
+                }
+            });
+        return pauseButton;
+    }//method
+    
     //create next button
     private Button nextButton()
     {
 
-        Button nextButton = new Button("next");
+        Button nextButton = new Button("Next");
 
         // allow the user to skip a track.
         nextButton.setOnAction(new EventHandler<ActionEvent>() {
